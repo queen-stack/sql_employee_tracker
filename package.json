@@ -1,0 +1,30 @@
+{
+  "name": "sql_employee_tracker",
+  "version": "1.0.0",
+  "description": "Command-line application to manage a company's database of employees using Node.js, Inquirer, and MySQL",
+  "main": "index.js",
+  "scripts": {
+    "test": "jest"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/queen-stack/sql_employee_tracker.git"
+  },
+  "keywords": [
+    "mysql",
+    "inquirer",
+    "employee",
+    "tracker"
+  ],
+  "author": "Jenifer Queen",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/queen-stack/sql_employee_tracker/issues"
+  },
+  "homepage": "https://github.com/queen-stack/sql_employee_tracker#readme",
+  "dependencies": {
+    "console.table": "^0.10.0",
+    "inquirer": "^7.3.3",
+    "mysql2": "^2.2.5"
+  }
+}

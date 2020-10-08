@@ -18,7 +18,7 @@ Command-line application to manage a company's database of employees using Node.
         
  ##description: <br>
      Command-line application to manage a company's database of employees using Node.js, Inquirer, and MySQL
-     This application won’t be deployed as it is an excercise in MYSQL from the terminal.
+     This application won’t be deployed as it is an exercise in MYSQL from the terminal.
 
        
  ##installation:
