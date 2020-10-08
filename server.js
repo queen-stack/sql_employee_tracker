@@ -1,64 +1,28 @@
-// call once somewhere in the beginning of the app
+// Dependencies
+const chalk = require('chalk');
+const inquirer = require("inquirer");
+const mysql = require('mysql');
 const cTable = require('console.table');
-console.table([
-  {
-    name: 'foo',
-    age: 10
-  }, {
-    name: 'bar',
-    age: 20
-  }
-]);
+const clear = require('console-clear');
 
-// prints
-name  age
-----  ---
-foo   10
-bar   20
+// MySQL DB Connection Information (--> change this with your specific credentials)
+const connection = mysql.createConnection({
+    host: "localhost",
+    port: 3306,
+    user: "root",
+    password: "root",
+    database: "employeesdb"
+  });
 
-//==========================
-
-const inquirer = require('inquirer');
-inquirer
-  .prompt([
-    /* Pass your questions in here */
-  ])
-  .then(answers => {
-    // Use user feedback for... whatever!!
-  })
-  .catch(error => {
-    if(error.isTtyError) {
-      // Prompt couldn't be rendered in the current environment
-    } else {
-      // Something else when wrong
+  // Initiate MySQL Connection.
+connection.connect(function(err) {
+    if (err) {
+      console.error("error connecting: " + err.stack);
+      return;
     }
-
-    
+    console.log("connected as id " + connection.threadId);
+    startApp()
+});
 
     // get the client
-const mysql = require('mysql2');
- 
-// create the connection to database
-const connection = mysql.createConnection({
-  host: 'localhost',
-  user: 'root',
-  database: 'test'
-});
- 
-// simple query
-connection.query(
-  'SELECT * FROM `table` WHERE `name` = "Page" AND `age` > 45',
-  function(err, results, fields) {
-    console.log(results); // results contains rows returned by server
-    console.log(fields); // fields contains extra meta data about results, if available
-  }
-);
- 
-// with placeholder
-connection.query(
-  'SELECT * FROM `table` WHERE `name` = ? AND `age` > ?',
-  ['Page', 45],
-  function(err, results) {
-    console.log(results);
-  }
-);
+    const mysql = require('mysql2');
