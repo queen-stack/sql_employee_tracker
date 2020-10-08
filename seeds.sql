@@ -1,12 +1,12 @@
 USE employeesDB;
 
-INSERT INTO department (id, name)
+INSERT INTO department (name)
 VALUES 
-(1, 'Executive Leadership'), 
-(2, 'Human Resources'), 
-(3, 'InfoSec'), 
-(4, 'Research & Development'),
-(5, 'Finance');
+('Executive Leadership'), 
+('Human Resources'), 
+('InfoSec'), 
+('Research & Development'),
+('Finance');
 
 INSERT INTO role (title, salary, department_id)
 VALUES 

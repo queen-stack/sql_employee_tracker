@@ -51,9 +51,6 @@ Command-line application to manage a company's database of employees using Node.
 * WHEN I choose to update an employee role
 * THEN I am prompted to select an employee to update and their new role and this information is updated in the database 
 
-![LAYOUT 1](./Assets/11-express-homework-demo-01.png)
-![LAYOUT 2](./Assets/11-express-homework-demo-02.png)
-
         
  ##license:       
   MIT 
