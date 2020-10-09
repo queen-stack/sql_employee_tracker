@@ -1,4 +1,4 @@
-const chalk = require('chalk');
+//const chalk = require('chalk');
 // render image
 function renderImage() {
   console.log(chalk.hex("	#228B22")(String.raw`
@@ -12,3 +12,9 @@ function renderImage() {
   console.log(chalk.dim("  Database\n"));
 }
 exports.renderImage = renderImage;
+
+const chalk = require('chalk');
+ 
+
+
+
