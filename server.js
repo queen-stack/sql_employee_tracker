@@ -21,19 +21,12 @@ connection.connect(err => {
   //createEmployees();
 });
 
-
-//exports.connection = connection;
-
-// Initiate MySQL Connection.
-//initiateConnection();
-
 //-----start the Employee Tracker
 function startApp() {
   //clear();
   renderImage()
   menuPrompt();
 }
-//exports.startApp = startApp;
 
 //initial prompt - which type of query?
 function menuPrompt() {
@@ -42,13 +35,13 @@ function menuPrompt() {
       type: "list",
       name: "promptChoice",
       message: "Make a selection:",
-      choices: ["View All Employees", "View All Employees by Department", "View All Employees by Manager", "View Roles", "View Departments", "Add Employee", "Add Roles", "Add Departments", "Remove Employee", "Remove Role", "Remove Department", "Update Employee Role", "Update Employee Manager", "View Total Used Budget By Department", chalk.redBright("Exit Program")]
+      choices: ["View All Employees", "View All Employees by Department", "View All Employees by Manager", "View Roles", "View Departments", "Add Employee", "Add Role", "Add Department", "Remove Employee", "Remove Role", "Remove Department", "Update Employee Role", "Update Employee Manager", "View Total Used Budget By Department", chalk.redBright("Exit Program")]
     })
     .then(answer => {
       switch (answer.promptChoice) {
         case "View All Employees":
           queryEmployeesAll();
-          break;
+        break;
 
         case "View All Employees by Department":
           queryDepartments();
@@ -58,12 +51,12 @@ function menuPrompt() {
           queryManagers();
           break;
 
-        case "View Role":
+        case "View Roles":
           queryRolesOnly();
           break;
 
-        case "View Department":
-          queryDepartmentOnly();
+        case "View Departments":
+          queryDepartmentsOnly();
           break;
 
         case "Add Role":
@@ -105,6 +98,10 @@ function menuPrompt() {
         case "Exit the Program":
           connection.end();
           process.exit();
+          break;
+
+          default:
+          console.log('choice-switch string mismatch');
       }
     });
 }
@@ -204,7 +201,7 @@ function queryDepartmentsOnly() {
 
 // Query the Roles only and display them for viewing
 function queryRolesOnly() {
-  const query = `SELECT id, title FROM employees_db.role;`;
+  const query = `SELECT id, title FROM role;`;
   //build table data array from query result
   connection.query(query, (err, res) => {
     if (err) throw err;
@@ -219,7 +216,6 @@ function queryRolesOnly() {
     renderScreen("All Roles", tableData);
   });
 }
-
 //query all managers
 function queryManagers() {
   const query = `
