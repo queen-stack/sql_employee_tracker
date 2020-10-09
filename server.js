@@ -12,7 +12,7 @@ const { renderImage } = require("./renderImage");
 const connection = mysql.createConnection({
   host: 'localhost',
   user: 'root',
-  password: 'Faye6308!',
+  password: '',
   database: 'employees_db'
 });
 connection.connect(err => {
