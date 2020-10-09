@@ -23,6 +23,8 @@
   },
   "homepage": "https://github.com/queen-stack/sql_employee_tracker#readme",
   "dependencies": {
+    "chalk": "^4.1.0",
+    "console-clear": "^1.1.1",
     "console.table": "^0.10.0",
     "inquirer": "^7.3.3",
     "mysql2": "^2.2.5"
