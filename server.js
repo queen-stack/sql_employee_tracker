@@ -4,14 +4,14 @@ const inquirer = require("inquirer");
 const mysql = require('mysql2');
 const ctable = require('console.table');
 const { renderImage } = require("./renderImage");
-
+require("dotenv").config()
 
 // MySQL DB Connection Information (--> change this with your specific credentials)
 const connection = mysql.createConnection({
   host: 'localhost',
-  user: 'root',
-  password: '',
-  database: 'employees_db'
+  user: process.env.USERNAME,
+  password: process.env.PASSWORD,
+  database: process.env.DATABASE
 });
 connection.connect(err => {
   if (err) throw err;
