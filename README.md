@@ -25,6 +25,8 @@ Command-line application to manage a company's database of employees using Node.
 * You’ll need to use the MySQL2 package (https://www.npmjs.com/package/mysql2) to connect to MySQL database and perform queries
 * You’ll need to use Inquirer package (Inquirer package (https://www.npmjs.com/package/inquirer) to interact with the user via the command-line
 * You'll need to use the console.table package (https://www.npmjs.com/package/console.table) to print MySQL rows to the console.
+* You'll need to use your own localhost pw
+* As this is a terminal run aplication import seeds and schema to run
  
 
   ![Command Line demo](./Assets/12-sql-homework-demo-01.gif)
