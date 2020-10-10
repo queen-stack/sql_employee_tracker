@@ -28,7 +28,8 @@ Command-line application to manage a company's database of employees using Node.
  
 
   ![Command Line demo](./Assets/12-sql-homework-demo-01.gif)
-  ![Database Demo](./Assets/12-sql-homework-demo-02.png)
+  ![Database Demo](<iframe src="https://drive.google.com/file/d/1oXEPipyFbXNg6mACOrzxYos6uK8DCD80/preview" width="640" height="480"></iframe>)
+  https://drive.google.com/file/d/1oXEPipyFbXNg6mACOrzxYos6uK8DCD80/view
         
  ##usage:
 * From a functionality standpoint, from the terminal the end user can: 
