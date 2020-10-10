@@ -4,20 +4,17 @@ const inquirer = require("inquirer");
 const mysql = require('mysql2');
 const ctable = require('console.table');
 const { renderImage } = require("./renderImage");
-// const { queryDepartments } = require("./queryDepartments");
-// const { viewTotalBudgetByDepartment } = require("./viewTotalBudgetByDepartment");
 
 
 // MySQL DB Connection Information (--> change this with your specific credentials)
 const connection = mysql.createConnection({
   host: 'localhost',
   user: 'root',
-  password: '',
+  password: 'Faye6308!',
   database: 'employees_db'
 });
 connection.connect(err => {
   if (err) throw err;
-  //console.log('connected as id ' + connection.threadId + '\n');
 });
 
 //-----start the Employee Tracker
@@ -35,7 +32,7 @@ function menuPrompt() {
       type: "list",
       name: "promptChoice",
       message: "Make a selection:",
-      choices: ["View All Employees", "View Roles", "View Departments", "Add Employee", "Add Role", "Add Department", "Update Employee Role", exitPrompt]
+      choices: ["View All Employees", "View All Employees by Manager", "View Roles", "View Departments", "Add Employee", "Add Role", "Add Department", "Update Employee Role", "Update Employee Manager", "Remove Employee", "View Total Used Budget By Department", exitPrompt]
     })
     .then(answer => {
       switch (answer.promptChoice) {
@@ -49,9 +46,9 @@ function menuPrompt() {
         //   queryDepartments();
         //   break;
 
-        // case "View All Employees by Manager":
-        //   queryManagers();
-        //   break;
+        case "View All Employees by Manager":
+          queryManagers();
+          break;
 
         case "View Roles":
           queryRolesOnly();
@@ -77,9 +74,9 @@ function menuPrompt() {
         //   removeRole();
         //   break;
 
-        // case "Remove Employee":
-        //   removeEmployee();
-        //   break;
+        case "Remove Employee":
+          removeEmployee();
+          break;
 
         // case "Remove Department":
         //   removeDepartment();
@@ -89,13 +86,13 @@ function menuPrompt() {
           updateEmployeeRole();
           break;
 
-        // case "Update Employee Manager":
-        //   updateEmployeeManager();
-        //   break;
+        case "Update Employee Manager":
+          updateEmployeeManager();
+          break;
 
-        // case "View Total Used Budget By Department":
-        //   viewTotalBudgetByDepartment();
-        //   break;
+        case "View Total Used Budget By Department":
+          viewTotalBudgetByDepartment();
+          break;
 
         case exitPrompt:
           connection.end();
@@ -237,33 +234,34 @@ function queryManagers() {
 // }
 
 //query employees by manager
-// function queryEmployeesByManager(manager) {
-//   //sql query
-//   const query = `
-//   SELECT employee.id, employee.first_name, employee.last_name, role.title, role.salary, department.name AS department_name, concat(manager.first_name, " ", manager.last_name) AS manager_full_name 
-//   FROM employee 
-//   INNER JOIN role ON employee.role_id = role.id
-//   INNER JOIN employee AS manager ON employee.manager_id = manager.id
-//   INNER JOIN department ON department.id = role.department_id
-//   WHERE concat(manager.first_name, " ", manager.last_name) = "${manager}";`;
-//   connection.query(query, (err, res) => {
-//     if (err) throw err;
-//     //build table data array from query result
-//     const tableData = [];
-//     for (let i = 0; i < res.length; i++) {
-//       tableData.push({
-//         "ID": res[i].id,
-//         "First Name": res[i].first_name,
-//         "Last Name": res[i].last_name,
-//         "Role": res[i].title,
-//         "Salary": res[i].salary,
-//         "Department": res[i].department_name
-//       });
-//     }
-//     //render screen
-//     renderScreen(`Employees managed by ${manager}`, tableData);
-//   });
-// }
+function queryEmployeesByManager(manager) {
+  //sql query
+  const query = `
+  SELECT employee.id, employee.first_name, employee.last_name, role.title, role.salary, department.name AS department_name, concat(manager.first_name, " ", manager.last_name) AS manager_full_name 
+  FROM employee 
+  INNER JOIN role ON employee.role_id = role.id
+  INNER JOIN employee AS manager ON employee.manager_id = manager.id
+  INNER JOIN department ON department.id = role.department_id
+  WHERE concat(manager.first_name, " ", manager.last_name) = "${manager}";`;
+  connection.query(query, (err, res) => {
+    if (err) throw err;
+    //build table data array from query result
+    const tableData = [];
+    for (let i = 0; i < res.length; i++) {
+      tableData.push({
+        "ID": res[i].id,
+        "First Name": res[i].first_name,
+        "Last Name": res[i].last_name,
+        "Role": res[i].title,
+        "Salary": res[i].salary,
+        "Department": res[i].department_name
+      });
+    }
+    //render screen
+    renderScreen(`Employees managed by ${manager}`, tableData);
+    menuPrompt();
+  });
+}
 
 //-----add / remove / update functions
 
@@ -415,9 +413,10 @@ function addDepartment() {
       connection.query(query, [answer.dName], (err, res) => {
         if (err) throw err;
         console.log("  New Department added successfully!")
-        queryDepartmentsCallBack(function (departments) {
-          renderScreen("departments", departments);
-        })
+        // queryDepartmentsCallBack(function (departments) {
+        //   renderScreen("departments", departments);
+        // })
+        queryDepartmentsOnly();
       })
 
     });
@@ -484,50 +483,50 @@ function addRole() {
   });
 }
 // Remove an employee from the database
-// function removeEmployee() {
-//   const query = `
-//   SELECT id, concat(employee.first_name, " ", employee.last_name) AS employee_full_name
-//   FROM employee ;`;
-//   connection.query(query, (err, res) => {
-//     if (err) throw err;
-//     //extract employee names and ids
-//     let employees = [];
-//     let employeesNames = [];
-//     for (let i = 0; i < res.length; i++) {
-//       employees.push({
-//         id: res[i].id,
-//         fullName: res[i].employee_full_name
-//       });
-//       employeesNames.push(res[i].employee_full_name);
-//     }
-//     //prompt for employee to remove
-//     inquirer
-//       .prompt({
-//         type: "list",
-//         name: "employeePromptChoice",
-//         message: "Select employee to delete:",
-//         choices: employeesNames
-//       })
-//       .then(answer => {
-//         //get id of chosen employee
-//         const chosenEmployee = answer.employeePromptChoice;
-//         let chosenEmployeeID;
-//         for (let i = 0; i < employees.length; i++) {
-//           if (employees[i].fullName === chosenEmployee) {
-//             chosenEmployeeID = employees[i].id;
-//             break;
-//           }
-//         }
-//         const query = "DELETE FROM employee WHERE ?";
-//         connection.query(query, { id: chosenEmployeeID }, (err, res) => {
-//           if (err) throw err;
-//           console.log("Employee Removed");
-//           //show updated employee table
-//           setTimeout(queryEmployeesAll, 500);
-//         });
-//       });
-//   });
-// }
+function removeEmployee() {
+  const query = `
+  SELECT id, concat(employee.first_name, " ", employee.last_name) AS employee_full_name
+  FROM employee ;`;
+  connection.query(query, (err, res) => {
+    if (err) throw err;
+    //extract employee names and ids
+    let employees = [];
+    let employeesNames = [];
+    for (let i = 0; i < res.length; i++) {
+      employees.push({
+        id: res[i].id,
+        fullName: res[i].employee_full_name
+      });
+      employeesNames.push(res[i].employee_full_name);
+    }
+    //prompt for employee to remove
+    inquirer
+      .prompt({
+        type: "list",
+        name: "employeePromptChoice",
+        message: "Select employee to delete:",
+        choices: employeesNames
+      })
+      .then(answer => {
+        //get id of chosen employee
+        const chosenEmployee = answer.employeePromptChoice;
+        let chosenEmployeeID;
+        for (let i = 0; i < employees.length; i++) {
+          if (employees[i].fullName === chosenEmployee) {
+            chosenEmployeeID = employees[i].id;
+            break;
+          }
+        }
+        const query = "DELETE FROM employee WHERE ?";
+        connection.query(query, { id: chosenEmployeeID }, (err, res) => {
+          if (err) throw err;
+          console.log("Employee Removed");
+          //show updated employee table
+          setTimeout(queryEmployeesAll, 500);
+        });
+      });
+  });
+}
 
 // Remove a role from the database
 // function removeRole() {
@@ -716,104 +715,127 @@ function updateEmployeeRole() {
   });
 }
 
-// function updateEmployeeManager() {
-//   //initialize updatedEmployee object
-//   const updatedEmployee = {
-//     id: 0,
-//     managerID: 0
-//   };
-//   //sql query for Employees
-//   const query = `
-//   SELECT id, concat(employee.first_name, " ", employee.last_name) AS employee_full_name
-//   FROM employee ;`;
-//   connection.query(query, (err, res) => {
-//     if (err) throw err;
-//     //extract employee names and ids to [arrays]
-//     let employees = [];
-//     let employeesNames = [];
-//     for (let i = 0; i < res.length; i++) {
-//       employees.push({
-//         id: res[i].id,
-//         fullName: res[i].employee_full_name
-//       });
-//       employeesNames.push(res[i].employee_full_name);
-//     }
-//     //prompt for employee to update
-//     inquirer
-//       .prompt({
-//         type: "list",
-//         name: "employeePromptChoice",
-//         message: "Select employee to update:",
-//         choices: employeesNames
-//       })
-//       .then(answer => {
-//         //get id of chosen employee
-//         const chosenEmployee = answer.employeePromptChoice;
-//         let chosenEmployeeID;
-//         for (let i = 0; i < employees.length; i++) {
-//           if (employees[i].fullName === chosenEmployee) {
-//             chosenEmployeeID = employees[i].id;
-//             break;
-//           }
-//         }
-//         //set updatedEmployee id
-//         updatedEmployee.id = chosenEmployeeID;
-//         const query = `
-//           SELECT DISTINCT concat(manager.first_name, " ", manager.last_name) AS full_name, manager.id
-//           FROM employee
-//           LEFT JOIN employee AS manager ON manager.id = employee.manager_id;`;
-//         connection.query(query, (err, res) => {
-//           if (err) throw err;
-//           //extract manager names and ids to [arrays]
-//           const managers = [];
-//           const managersNames = [];
-//           for (let i = 0; i < res.length; i++) {
-//             managersNames.push(res[i].full_name);
-//             managers.push({
-//               id: res[i].id,
-//               fullName: res[i].full_name
-//             });
-//           }
-//           //prompt for manager selection
-//           inquirer
-//             .prompt({
-//               type: "list",
-//               name: "managerPromptChoice",
-//               message: "Select Manager:",
-//               choices: managersNames
-//             })
-//             .then(answer => {
-//               //get id of chosen manager
-//               const chosenManager = answer.managerPromptChoice;
-//               let chosenManagerID;
-//               for (let i = 0; i < managers.length; i++) {
-//                 if (managers[i].fullName === chosenManager) {
-//                   chosenManagerID = managers[i].id;
-//                   break;
-//                 }
-//               }
-//               //set newEmployee manager ID
-//               updatedEmployee.managerID = chosenManagerID;
-//               //sql query to update manager
-//               const query = `UPDATE employee SET ? WHERE ?`;
-//               connection.query(query, [
-//                 {
-//                   manager_id: updatedEmployee.managerID
-//                 },
-//                 {
-//                   id: updatedEmployee.id
-//                 }
-//               ], (err, res) => {
-//                 if (err) throw err;
-//                 console.log("Employee Role Updated");
-//                 //show updated employee table
-//                 setTimeout(queryEmployeesAll, 500);
-//               });
-//             });
-//         });
-//       });
-//   });
-// }
+function updateEmployeeManager() {
+  //initialize updatedEmployee object
+  const updatedEmployee = {
+    id: 0,
+    managerID: 0
+  };
+  //sql query for Employees
+  const query = `
+  SELECT id, concat(employee.first_name, " ", employee.last_name) AS employee_full_name
+  FROM employee ;`;
+  connection.query(query, (err, res) => {
+    if (err) throw err;
+    //extract employee names and ids to [arrays]
+    let employees = [];
+    let employeesNames = [];
+    for (let i = 0; i < res.length; i++) {
+      employees.push({
+        id: res[i].id,
+        fullName: res[i].employee_full_name
+      });
+      employeesNames.push(res[i].employee_full_name);
+    }
+    //prompt for employee to update
+    inquirer
+      .prompt({
+        type: "list",
+        name: "employeePromptChoice",
+        message: "Select employee to update:",
+        choices: employeesNames
+      })
+      .then(answer => {
+        //get id of chosen employee
+        const chosenEmployee = answer.employeePromptChoice;
+        let chosenEmployeeID;
+        for (let i = 0; i < employees.length; i++) {
+          if (employees[i].fullName === chosenEmployee) {
+            chosenEmployeeID = employees[i].id;
+            break;
+          }
+        }
+        //set updatedEmployee id
+        updatedEmployee.id = chosenEmployeeID;
+        const query = `
+          SELECT DISTINCT concat(manager.first_name, " ", manager.last_name) AS full_name, manager.id
+          FROM employee
+          LEFT JOIN employee AS manager ON manager.id = employee.manager_id
+          WHERE manager.id IS NOT NULL;`;
+        connection.query(query, (err, res) => {
+          if (err) throw err;
+          //extract manager names and ids to [arrays]
+          const managers = [];
+          const managersNames = [];
+          for (let i = 0; i < res.length; i++) {
+            managersNames.push(res[i].full_name);
+            managers.push({
+              id: res[i].id,
+              fullName: res[i].full_name
+            });
+          }
+          //prompt for manager selection
+          inquirer
+            .prompt({
+              type: "list",
+              name: "managerPromptChoice",
+              message: "Select Manager:",
+              choices: managersNames
+            })
+            .then(answer => {
+              //get id of chosen manager
+              const chosenManager = answer.managerPromptChoice;
+              let chosenManagerID;
+              for (let i = 0; i < managers.length; i++) {
+                if (managers[i].fullName === chosenManager) {
+                  chosenManagerID = managers[i].id;
+                  break;
+                }
+              }
+              //set newEmployee manager ID
+              updatedEmployee.managerID = chosenManagerID;
+              //sql query to update manager
+              const query = `UPDATE employee SET ? WHERE ?`;
+              connection.query(query, [
+                {
+                  manager_id: updatedEmployee.managerID
+                },
+                {
+                  id: updatedEmployee.id
+                }
+              ], (err, res) => {
+                if (err) throw err;
+                console.log("Employee Role Updated");
+                //show updated employee table
+                setTimeout(queryEmployeesAll, 500);
+              });
+            });
+        });
+      });
+  });
+}
+
+function viewTotalBudgetByDepartment() {
+  const query = `select d.name "Department", SUM(r.salary) "BudgetUsed" 
+  from role r
+  JOIN department d 
+  JOIN employee e 
+  where r.id = e.role_id and r.id = d.id group by r.id;`;
+  connection.query(query, (err, res) => {
+    if (err)
+      throw err;
+    //build table data array from query result
+    const tableData = [];
+    for (let i = 0; i < res.length; i++) {
+      tableData.push({
+        "Department": res[i].Department,
+        "Budget Used": res[i].BudgetUsed
+      });
+    }
+    renderScreen(`Total Budget per Department`, tableData);
+    menuPrompt();
+  });
+}
 
 function renderScreen(heading , data){
   console.clear();
