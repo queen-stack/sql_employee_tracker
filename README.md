@@ -43,7 +43,7 @@ Command-line application to manage a company's database of employees using Node.
 * Remove Employee 
 * View Total Used Budget By Department 
 * Exit Program 
-* Note - if the user deletes the manager for a department it will have an on the database due to async behavior
+* Note - if the user deletes the manager for a department it will have negative impact on the database due to async behavior
 * Feature to be added as validation- to question if end user wants to proceed with deleting manager of dept due to downstream impact on db
 
         
