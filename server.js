@@ -15,6 +15,7 @@ const connection = mysql.createConnection({
 });
 connection.connect(err => {
   if (err) throw err;
+  startApp();
 });
 
 //-----start the Employee Tracker
@@ -82,7 +83,7 @@ function menuPrompt() {
 
         case exitPrompt:
           connection.end();
-          return;
+       //   return;
           break;
 
       }
@@ -661,4 +662,3 @@ function renderScreen(heading , data){
   console.table(heading, data);
 }
 
-startApp();
