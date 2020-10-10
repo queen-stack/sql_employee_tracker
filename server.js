@@ -37,15 +37,9 @@ function menuPrompt() {
     .then(answer => {
       switch (answer.promptChoice) {
         case "View All Employees":
-          console.log("Before switch call to queryEmployeesAll()");
           queryEmployeesAll();
-          console.log("After switch call to queryEmployeesAll()");
           break;
-
-        // case "View All Employees by Department":
-        //   queryDepartments();
-        //   break;
-
+       
         case "View All Employees by Manager":
           queryManagers();
           break;
@@ -70,17 +64,9 @@ function menuPrompt() {
           addDepartment();
           break;
 
-        // case "Remove Role":
-        //   removeRole();
-        //   break;
-
         case "Remove Employee":
           removeEmployee();
           break;
-
-        // case "Remove Department":
-        //   removeDepartment();
-        //   break;
 
         case "Update Employee Role":
           updateEmployeeRole();
@@ -99,26 +85,9 @@ function menuPrompt() {
           return;
           break;
 
-        default:
-          console.log('choice-switch string mismatch');
       }
     });
 }
-
-//department prompt
-function promptDepartments(departments) {
-  inquirer
-    .prompt({
-      type: "list",
-      name: "promptChoice",
-      message: "Select Department:",
-      choices: departments
-    })
-    .then(answer => {
-      queryEmployeesByDepartment(answer.promptChoice);
-    });
-}
-exports.promptDepartments = promptDepartments;
 
 //manager prompt
 function promptManagers(managers) {
@@ -136,7 +105,6 @@ function promptManagers(managers) {
 
 //query all employees
 function queryEmployeesAll() {
-  console.log("Entering queryEmployeesAll()");
   const query = `
   SELECT employee.id, employee.first_name, employee.last_name, role.title, role.salary, department.name AS department_name, concat(manager.first_name, " ", manager.last_name) AS manager_full_name
   FROM employee 
@@ -147,21 +115,6 @@ function queryEmployeesAll() {
     if (err) throw err;
     renderScreen("Display all Employees", res);
     menuPrompt();
-  });
-}
-
-
-function queryDepartmentsCallBack(callback) {
-  const query = `SELECT department.name FROM department;`;
-  connection.query(query, (err, res) => {
-    if (err) throw err;
-    //extract department names to array
-    const departments = [];
-    for (let i = 0; i < res.length; i++) {
-      departments.push(res[i].name);
-    }
-    //prompt for department selection
-    callback(departments)
   });
 }
 
@@ -191,7 +144,8 @@ function queryManagers() {
   const query = `
   SELECT DISTINCT concat(manager.first_name, " ", manager.last_name) AS full_name
   FROM employee
-  LEFT JOIN employee AS manager ON manager.id = employee.manager_id;`;
+  LEFT JOIN employee AS manager ON manager.id = employee.manager_id
+  WHERE manager.id IS NOT NULL;`;
   connection.query(query, (err, res) => {
     if (err) throw err;
     //extract manager names to array
@@ -204,35 +158,6 @@ function queryManagers() {
   });
 }
 
-//query employees by department
-// function queryEmployeesByDepartment(department) {
-//   //sql query
-//   const query = `
-//   SELECT employee.id, employee.first_name, employee.last_name, role.title, role.salary, concat(manager.first_name, " ", manager.last_name) AS manager_full_name
-//   FROM employee 
-//   INNER JOIN role ON employee.role_id = role.id
-//   INNER JOIN employee AS manager ON employee.manager_id = manager.id
-//   INNER JOIN department ON department.id = role.department_id
-//   WHERE department.name = "${department}";`;
-//   connection.query(query, (err, res) => {
-//     if (err) throw err;
-//     //build table data array from query result
-//     const tableData = [];
-//     for (let i = 0; i < res.length; i++) {
-//       tableData.push({
-//         "ID": res[i].id,
-//         "First Name": res[i].first_name,
-//         "Last Name": res[i].last_name,
-//         "Role": res[i].title,
-//         "Salary": res[i].salary,
-//         "Manager": res[i].manager_full_name
-//       });
-//     }
-//     //render screen
-//     renderScreen(`${department} Department`, tableData);
-//   });
-// }
-
 //query employees by manager
 function queryEmployeesByManager(manager) {
   //sql query
@@ -242,7 +167,7 @@ function queryEmployeesByManager(manager) {
   INNER JOIN role ON employee.role_id = role.id
   INNER JOIN employee AS manager ON employee.manager_id = manager.id
   INNER JOIN department ON department.id = role.department_id
-  WHERE concat(manager.first_name, " ", manager.last_name) = "${manager}";`;
+  WHERE manager.id IS NOT NULL AND concat(manager.first_name, " ", manager.last_name) = "${manager}";`;
   connection.query(query, (err, res) => {
     if (err) throw err;
     //build table data array from query result
@@ -263,8 +188,6 @@ function queryEmployeesByManager(manager) {
   });
 }
 
-//-----add / remove / update functions
-
 //add employee
 function addEmployee() {
   //initialize newEmployee object
@@ -280,7 +203,7 @@ function addEmployee() {
       name: "firstName",
       message: "Enter first name: ",
       validate: async (input) => {
-        if (!input.match(/^[A-Z][A-Z ]{0,}/i)) {
+        if (!input.match(/^[A-Z][A-Z ]{0,}/i)) { //test
           return "Sorry, the employee's first name must contain at least 1 character and must only contain letters and spaces!".yellow;
         }
         return true;
@@ -289,7 +212,7 @@ function addEmployee() {
       name: "lastName",
       message: "Enter last name: ",
       validate: async (input) => {
-        if (!input.match(/^[A-Z][A-Z ]{0,}/i)) {
+        if (!input.match(/^[A-Z][A-Z ]{0,}/i)) { //test
           return "Sorry, the employee's last name must contain at least 1 character and must only contain letters and spaces!".yellow;
         }
         return true;
@@ -382,7 +305,6 @@ function addEmployee() {
                     manager_id: newEmployee.managerID || 0
                   }, (err, res) => {
                     if (err) throw err;
-                    console.log("Employee Added");
                     //show updated employee table
                     setTimeout(queryEmployeesAll, 500);
                   });
@@ -401,10 +323,10 @@ function addDepartment() {
         type: "input",
         message: "Enter new Department title:",
         validate: async function confirmStringInput(input) {
-          if (input.trim() != "" && input.trim().length <= 30) {
+          if (input.trim() != "" && input.trim().length <= 50) {
             return true;
           }
-          return "Invalid input. Please limit your input to 30 characters or less.";
+          return "Invalid input. Please limit your input to 50 characters or less.";
         },
       },
     ])
@@ -412,13 +334,8 @@ function addDepartment() {
       const query = `INSERT INTO department (name) VALUES (?);`;
       connection.query(query, [answer.dName], (err, res) => {
         if (err) throw err;
-        console.log("  New Department added successfully!")
-        // queryDepartmentsCallBack(function (departments) {
-        //   renderScreen("departments", departments);
-        // })
         queryDepartmentsOnly();
       })
-
     });
 }
 
@@ -444,10 +361,10 @@ function addRole() {
           type: "input",
           message: "Enter new role title:",
           validate: async function confirmStringInput(input) {
-            if (input.trim() != "" && input.trim().length <= 30) {
+            if (input.trim() != "" && input.trim().length <= 50) {
               return true;
             }
-            return "Invalid input. Please limit your input to 30 characters or less.";
+            return "Invalid input. Please limit your input to 50 characters or less.";
           },
         },
         {
@@ -469,19 +386,16 @@ function addRole() {
         },
       ])
       .then((answer) => {
-
         let deptID = departments.find((obj) => obj.name === answer.roleDept).id;
         connection.query("INSERT INTO role (title, salary, department_id) VALUES (?, ?, ?)",
           [answer.rName, answer.salNum, deptID], (err, res) => {
             if (err) throw err;
-            console.log(
-              `${answer.rName} was added to the ${answer.roleDept} department.`);
             queryRolesOnly();
           });
-
       });
   });
 }
+
 // Remove an employee from the database
 function removeEmployee() {
   const query = `
@@ -520,105 +434,12 @@ function removeEmployee() {
         const query = "DELETE FROM employee WHERE ?";
         connection.query(query, { id: chosenEmployeeID }, (err, res) => {
           if (err) throw err;
-          console.log("Employee Removed");
           //show updated employee table
           setTimeout(queryEmployeesAll, 500);
         });
       });
   });
 }
-
-// Remove a role from the database
-// function removeRole() {
-//   const query = `
-//   SELECT id, role.title FROM role;`
-//   connection.query(query, (err, res) => {
-//     if (err) throw err;
-//     //extract department names to array
-//     const roles = [];
-//     const rolesNames = [];
-//     for (let i = 0; i < res.length; i++) {
-//       roles.push({
-//         id: res[i].id,
-//         title: res[i].title
-//       });
-//       rolesNames.push(res[i].title);
-//     }
-//     //prompt for role to remove
-//     inquirer
-//       .prompt({
-//         type: "list",
-//         name: "rolesPromptChoice",
-//         message: "Select Role to delete",
-//         choices: rolesNames
-//       })
-//       .then(answer => {
-//         //get id of chosen department
-//         const chosenRole = answer.rolesPromptChoice;
-//         let chosenRoleID;
-//         for (let i = 0; i < roles.length; i++) {
-//           if (roles[i].title === chosenRole) {
-//             chosenRoleID = roles[i].id;
-//             break;
-//           }
-//         }
-//         const query = "DELETE FROM role WHERE ?";
-//         connection.query(query, { id: chosenRoleID }, (err, res) => {
-//           if (err) throw err;
-//           console.log("Role Removed");
-//           //show updated Role table
-//           setTimeout(queryRolesOnly, 500);
-//         });
-//       });
-//   });
-// }
-
-
-// Remove a department from the database
-// function removeDepartment() {
-//   const query = `
-//   SELECT id, department.name FROM department;`;
-//   connection.query(query, (err, res) => {
-//     if (err) throw err;
-//     //extract department names to array
-//     const departments = [];
-//     const departmentsNames = [];
-//     for (let i = 0; i < res.length; i++) {
-//       departments.push({
-//         id: res[i].id,
-//         name: res[i].name
-//       });
-//       departmentsNames.push(res[i].name);
-//     }
-//     //prompt for department to remove
-//     inquirer
-//       .prompt({
-//         type: "list",
-//         name: "departmentsPromptChoice",
-//         message: "Select Department to delete",
-//         choices: departmentsNames
-//       })
-//       .then(answer => {
-//         //get id of chosen department
-//         const chosenDepartment = answer.departmentsPromptChoice;
-//         let chosenDepartmentId;
-//         for (let i = 0; i < departments.length; i++) {
-//           if (departments[i].name === chosenDepartment) {
-//             chosenDepartmentId = departments[i].id;
-//             break;
-//           }
-//         }
-//         const query = "DELETE FROM department WHERE ?";
-//         connection.query(query, { id: chosenDepartmentId }, (err, res) => {
-//           if (err) throw err;
-//           console.log("Department Removed");
-//           //show updated Department table
-//           setTimeout(queryDepartmentsOnly, 500);
-
-//         });
-//       });
-//   });
-// }
 
 function updateEmployeeRole() {
   //initialize updatedEmployee object
@@ -705,7 +526,6 @@ function updateEmployeeRole() {
                 }
               ], (err, res) => {
                 if (err) throw err;
-                console.log("Employee Role Updated");
                 //show updated employee table
                 setTimeout(queryEmployeesAll, 500);
               });
@@ -805,7 +625,6 @@ function updateEmployeeManager() {
                 }
               ], (err, res) => {
                 if (err) throw err;
-                console.log("Employee Role Updated");
                 //show updated employee table
                 setTimeout(queryEmployeesAll, 500);
               });
@@ -841,6 +660,5 @@ function renderScreen(heading , data){
   console.clear();
   console.table(heading, data);
 }
-
 
 startApp();
